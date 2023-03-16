@@ -1,0 +1,149 @@
+
+import React from "react";
+import ReactDOM from 'react-dom';
+import { useForm } from "react-hook-form";
+import Checkbox from '@mui/material/Checkbox';
+import { Box, Button, Grid, Paper, TextField, Typography } from '@mui/material'
+
+const errorColor = "#f00";
+const neutralColor = "#000";
+
+function App() {
+  const { register, handleSubmit, setValue, errors } = useForm();
+
+  const onSubmit = data => {
+    // is only triggered with validated form
+    console.log(data);
+    //alert(JSON.stringify(data));//
+  };
+  const handleChange = e => {
+    console.log(e.target.name, e.target.value, e.target.checked, e.target.type);
+    const value =
+      e.target.type === "checkbox" || e.target.type === "radio"
+        ? e.target.checked
+        : e.target.value;
+    setValue(e.target.name, value);
+  };
+
+  React.useEffect(() => {
+    register(
+      { name: "firstName" },
+      {
+        required: "First name is required",
+        minLength: { value: 5, message: "Too short sis" },
+        maxLength: { value: 10, message: "Too long bro" }
+      }
+    );
+    register(
+      { name: "age" },
+      {
+        required: "Age is required",
+        pattern: /^[0-9]+$/i,
+        validate: value => value > 17 && value < 100
+      }
+    );
+    register(
+      { name: "soul" },
+      {
+        validate: value => value === true || "Sell!"
+      }
+    );
+    // register(
+    //   { name: "radioName" },
+    //   {
+    //     validate: value => value || "Sell2222!"
+    //   }
+    // );
+  }, [register]);
+
+  // console.log(errors);
+
+  return (
+    <div className="App">
+      <h1>Form validation test</h1>
+      <h2>using react-hook-form with asc-ui</h2>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className={Object.keys(errors).length > 0 ? "error" : ""}>
+          <TextField
+            name="firstName"
+            placeholder="first name"
+            style={{
+              maxWidth: 400,
+              borderColor: errors.firstName ? errorColor : neutralColor
+            }}
+            onChange={handleChange}
+            srOnly
+          />
+          {errors.firstName && errors.firstName.message}
+          <br />
+          <br />
+          <TextField
+            name="age"
+            placeholder="age"
+            style={{
+              maxWidth: 200,
+              borderColor: errors.age ? errorColor : neutralColor
+            }}
+            onChange={handleChange}
+            srOnly
+          />
+          {errors.age && errors.age.message}
+          {errors.age &&
+            errors.age.type === "pattern" &&
+            "Doesn't look like a number"}
+          {errors.age && errors.age.type === "validate" && "Age is not valid"}
+          <br />
+          <br />
+          <input
+            type="date"
+            name="bday"
+            ref={register({ required: "Birthday is required" })}
+            style={{
+              borderWidth: 1,
+              borderColor: errors.bday ? errorColor : neutralColor
+            }}
+          />
+          <br />
+          {errors.bday && errors.bday.message}
+          <br />
+          <br />
+          <label
+            htmlFor="soul"
+          label="I agree to sell my soul"
+            noActiveState={true}
+            onChange={handleChange}
+          >
+            <Checkbox id="soul" name="soul" error={errors.soul} />
+          </label>
+          <br />
+          {errors.soul && errors.soul.message}
+          {/* <Label
+            htmlFor="1"
+            label="1"
+            noActiveState={true}
+            onChange={handleChange}
+          >
+            <input type="radio" name="radioName" id="1" />
+          </Label>
+          <Label
+            htmlFor="2"
+            label="2"
+            noActiveState={true}
+            onChange={handleChange}
+          >
+            <input type="radio" name="radioName" id="2" />
+          </Label>
+          <br />
+          {errors.radioName && errors.radioName.message} */}
+        </div>
+        <br />
+        <br />
+        <Button type="submit" variant="secondary">
+          Submit
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>,document.getElementById("root"))
